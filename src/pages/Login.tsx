@@ -37,19 +37,12 @@ export default function Login() {
     }
   };
 
-  const demoUsers = [
-    { email: "caren_lyss4002@gmail.com", name: "Alyssa Caren" },
-    { email: "yofi_15@gmail.com", name: "Yofi Dairani" },
-    { email: "lau_pau404@gmail.com", name: "Paula Laura" },
-  ];
-
   return (
     <div className="min-h-screen flex items-center justify-center relative px-4">
       <MovingPatternCanvas />
       <div className="w-full max-w-md space-y-6 relative z-10">
         <div className="text-center">
           <img src={logoSvg} alt="FIGYURED" className="h-16 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-orange-500">FIGYURED</h1>
           <p className="text-gray-600">Sign in to your account</p>
         </div>
 
@@ -91,28 +84,6 @@ export default function Login() {
                 Sign In
               </Button>
             </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardDescription className="text-xs">
-              Use any of these accounts
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {demoUsers.map((user, index) => (
-                <div key={index} className="text-xs p-2 bg-gray-50 rounded">
-                  <div className="font-medium">{user.name}</div>
-                  <div className="text-gray-600">{user.email}</div>
-                  <div className="text-orange-500 font-medium">
-                    Password:{" "}
-                    {user.email.split("_")[0] || user.email.split(".")[0]}123
-                  </div>
-                </div>
-              ))}
-            </div>
           </CardContent>
         </Card>
       </div>
