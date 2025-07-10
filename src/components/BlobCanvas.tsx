@@ -19,9 +19,51 @@ const MovingPatternCanvas: React.FC<MovingPatternCanvasProps> = ({
     let animationId: number;
     let time = 0;
 
+    // Generate random positions for circles (seeded for consistency)
+    const circleCount = 80;
+    const circles: {
+      baseX: number;
+      baseY: number;
+      floatSpeedX: number;
+      floatSpeedY: number;
+      floatAmplitudeX: number;
+      floatAmplitudeY: number;
+      sizeVariation: number;
+      opacityPhase: number;
+    }[] = [];
+
+    // Simple seeded random function for consistent positions
+    let seed = 12345;
+    const seededRandom = () => {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
+
+    // Generate random positions for each circle
+    for (let i = 0; i < circleCount; i++) {
+      circles.push({
+        baseX: seededRandom() * window.innerWidth,
+        baseY: seededRandom() * window.innerHeight,
+        floatSpeedX: 0.005 + seededRandom() * 0.01,
+        floatSpeedY: 0.003 + seededRandom() * 0.008,
+        floatAmplitudeX: 10 + seededRandom() * 20,
+        floatAmplitudeY: 8 + seededRandom() * 15,
+        sizeVariation: seededRandom() * 0.5,
+        opacityPhase: seededRandom() * Math.PI * 2,
+      });
+    }
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      // Update circle positions for new canvas size
+      circles.forEach((circle) => {
+        if (circle.baseX > canvas.width)
+          circle.baseX = seededRandom() * canvas.width;
+        if (circle.baseY > canvas.height)
+          circle.baseY = seededRandom() * canvas.height;
+      });
     };
 
     const drawMovingShapes = () => {
@@ -31,27 +73,28 @@ const MovingPatternCanvas: React.FC<MovingPatternCanvasProps> = ({
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Many tiny glowing circles scattered across the screen
-      const circleCount = 80; // More circles for better coverage
+      // Draw randomly positioned tiny glowing circles
+      circles.forEach((circle, i) => {
+        // Gentle floating movement using each circle's unique properties
+        const x =
+          circle.baseX +
+          Math.sin(time * circle.floatSpeedX + i * 0.1) *
+            circle.floatAmplitudeX;
+        const y =
+          circle.baseY +
+          Math.cos(time * circle.floatSpeedY + i * 0.2) *
+            circle.floatAmplitudeY;
 
-      for (let i = 0; i < circleCount; i++) {
-        // Random but consistent positioning based on index
-        const baseX = (i * 137.508) % canvas.width; // Golden angle distribution
-        const baseY = (i * 100) % canvas.height;
+        // Keep circles on screen with gentle wrapping
+        const finalX = ((x % canvas.width) + canvas.width) % canvas.width;
+        const finalY = ((y % canvas.height) + canvas.height) % canvas.height;
 
-        // Gentle floating movement
-        const x = baseX + Math.sin(time * 0.005 + i * 0.1) * 15;
-        const y = baseY + Math.cos(time * 0.003 + i * 0.2) * 10;
+        // Tiny radius with individual variation
+        const radius = 1.5 + Math.sin(time * 0.008 + i) * circle.sizeVariation;
 
-        // Keep circles on screen
-        const finalX = Math.max(10, Math.min(canvas.width - 10, x));
-        const finalY = Math.max(10, Math.min(canvas.height - 10, y));
-
-        // Tiny radius with slight variation
-        const radius = 1.5 + Math.sin(time * 0.008 + i) * 0.5;
-
-        // Gentle glow effect with varying opacity
-        const opacity = 0.3 + Math.sin(time * 0.006 + i * 0.5) * 0.2;
+        // Individual opacity variation
+        const opacity =
+          0.3 + Math.sin(time * 0.006 + circle.opacityPhase) * 0.2;
 
         // Create glow effect with multiple circles
         for (let glow = 3; glow >= 1; glow--) {
@@ -69,7 +112,7 @@ const MovingPatternCanvas: React.FC<MovingPatternCanvasProps> = ({
         ctx.beginPath();
         ctx.arc(finalX, finalY, radius, 0, Math.PI * 2);
         ctx.fill();
-      }
+      });
     };
 
     const animate = () => {
